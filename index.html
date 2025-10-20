@@ -12,6 +12,7 @@
       padding: 0;
       display: flex;
     }
+
     header {
       background-color: #f2201c;
       color: white;
@@ -24,43 +25,89 @@
       top: 0;
       z-index: 1001;
     }
+
+    .menu-toggle {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.8em;
+      cursor: pointer;
+      z-index: 1002;
+      transition: transform 0.2s;
+    }
+
+    .menu-toggle:hover {
+      transform: scale(1.1);
+    }
+
     .sidebar {
       width: 250px;
-      background: #8f9192;
+      background: #2b2b2b;
+      color: white;
       padding-top: 80px;
       height: 100vh;
-      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      box-shadow: 2px 0 5px rgba(0,0,0,0.3);
       position: fixed;
       top: 0;
-      left: 0;
+      left: -260px;
       overflow-y: auto;
+      transition: left 0.3s ease;
+      z-index: 1000;
     }
+
+    .sidebar.active {
+      left: 0;
+    }
+
     .sidebar h3 {
       text-align: center;
       margin-bottom: 20px;
+      color: #ffcb05;
     }
+
     .sidebar ul {
       list-style: none;
       padding: 0;
     }
+
     .sidebar ul li {
-      padding: 10px 20px;
+      padding: 12px 20px;
       cursor: pointer;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      transition: background 0.2s;
     }
+
     .sidebar ul li:hover {
       background-color: #ef5350;
-      color: white;
     }
+
     main {
-      margin-left: 250px;
-      padding: 100px 20px 20px 20px;
+      margin-left: 0;
+      padding: 140px 20px 20px 20px;
       width: 100%;
+      transition: margin-left 0.3s ease;
     }
+
+    @media (min-width: 900px) {
+      .sidebar {
+        left: 0;
+      }
+      main {
+        margin-left: 250px;
+      }
+      .menu-toggle {
+        display: none;
+      }
+    }
+
     .search-bar {
       margin: 20px auto;
       text-align: center;
     }
+
     .search-bar input {
       width: 300px;
       padding: 10px;
@@ -68,18 +115,22 @@
       border: 1px solid #ccc;
       font-size: 1em;
     }
+
     .generation {
       margin-bottom: 40px;
     }
+
     .generation h2 {
       color: #333;
       margin-bottom: 20px;
     }
+
     .pokedex {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
       gap: 20px;
     }
+
     .pokemon {
       background: rgb(237, 237, 237);
       border-radius: 10px;
@@ -89,19 +140,43 @@
       transition: transform 0.2s, box-shadow 0.3s;
       cursor: pointer;
     }
+
     .pokemon:hover {
       transform: scale(1.05);
       box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
     }
+
     .pokemon img {
       width: 80px;
       height: 80px;
     }
+
     .pokemon h3, .pokemon p {
       margin-top: 5px;
       font-size: 1em;
       color: #555;
     }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin: 20px 0;
+    }
+
+    .nav-buttons button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #ef5350;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .nav-buttons button:hover {
+      transform: scale(1.05);
+    }
+
     .modal {
       display: none;
       position: fixed;
@@ -112,13 +187,15 @@
       background: rgba(0, 0, 0, 0.8);
       justify-content: center;
       align-items: center;
-      z-index: 1000;
+      z-index: 2000;
       animation: fadeIn 0.5s;
     }
+
     @keyframes fadeIn {
       from { opacity: 0; }
       to { opacity: 1; }
     }
+
     .modal-content {
       background: white;
       padding: 20px;
@@ -127,29 +204,46 @@
       max-width: 400px;
       animation: popUp 0.5s ease;
     }
+
     @keyframes popUp {
       from { transform: scale(0.5); }
       to { transform: scale(1); }
     }
+
     .modal-content img {
       width: 120px;
       height: 120px;
     }
+
     .types {
       display: flex;
       justify-content: center;
       gap: 10px;
       margin-top: 10px;
     }
+
     .types img {
       width: 40px;
       height: 40px;
     }
+
     .close {
       margin-top: 10px;
       cursor: pointer;
       color: red;
       font-weight: bold;
+    }
+
+    #generationInfo {
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+    main iframe {
+      display: block;
+      margin: 0 auto 30px auto; /* centrado horizontal y margen inferior */
+      max-width: 100%;
     }
   </style>
 </head>
@@ -158,27 +252,37 @@
     Pokédex Completa
   </header>
 
-  <div class="sidebar">
-    <h3>Generaciones</h3>
+  <button class="menu-toggle" id="menuToggle">☰</button>
+
+  <div class="sidebar" id="sidebar">
+    <h3>Menú Pokédex</h3>
     <ul id="generationList"></ul>
   </div>
 
   <main>
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/G2ksg6etR4U?si=oxk_TQUtIGAIqMWS" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/G2ksg6etR4U?si=oxk_TQUtIGAIqMWS"
+      title="YouTube video player" frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
     <div class="search-bar">
       <input type="text" id="searchInput" placeholder="Buscar Pokémon por nombre o número...">
     </div>
+
+    <!-- Contador de Pokémon -->
+    <div id="generationInfo"></div>
+
     <div id="pokedex"></div>
-  </main>
+    
+</main>
+
+}
 
   <div class="modal" id="modal">
     <div class="modal-content" id="modalContent">
       <span class="close" id="closeModal">Cerrar</span>
     </div>
   </div>
-
-  <!-- Sonido de fondo -->
-  
 
   <audio id="openSound" src="https://assets.mixkit.co/sfx/preview/mixkit-video-game-win-2016.mp3"></audio>
 
@@ -192,10 +296,10 @@
       { gen: "Sexta Generación", from: 650, to: 721 },
       { gen: "Séptima Generación", from: 722, to: 809 },
       { gen: "Octava Generación", from: 810, to: 905 },
-      { gen: "Novena Generación", from: 906, to: 1010 }
+      { gen: "Novena Generación", from: 906, to: 1024 }
     ];
 
-    const typeIcons = {
+     const typeIcons = {
       normal: "https://images.wikidexcdn.net/mwuploads/wikidex/c/c3/latest/20230128125621/Tipo_normal_icono_EP.svg",
       fire: "https://images.wikidexcdn.net/mwuploads/wikidex/5/55/latest/20230128125153/Tipo_fuego_icono_EP.svg",
       water: "https://images.wikidexcdn.net/mwuploads/wikidex/d/d6/latest/20230128124702/Tipo_agua_icono_EP.svg",
@@ -222,28 +326,64 @@
       ground: '#E0C068', flying: '#A890F0', psychic: '#F85888', bug: '#A8B820',
       rock: '#B8A038', ghost: '#705898', dragon: '#7038F8', dark: '#705848',
       steel: '#B8B8D0', fairy: '#EE99AC'
-    };
+    }; 
 
     const pokedexDiv = document.getElementById('pokedex');
     const generationList = document.getElementById('generationList');
     const modal = document.getElementById('modal');
     const modalContent = document.getElementById('modalContent');
     const openSound = document.getElementById('openSound');
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const generationInfo = document.getElementById('generationInfo');
+
+    menuToggle.addEventListener('click', () => sidebar.classList.toggle('active'));
 
     generations.forEach((gen, index) => {
-      const listItem = document.createElement('li');
-      listItem.textContent = gen.gen;
-      listItem.addEventListener('click', () => loadGeneration(index));
-      generationList.appendChild(listItem);
-    });
+  const listItem = document.createElement('li');
+  listItem.textContent = gen.gen;
+  listItem.addEventListener('click', () => loadGeneration(index));
+  generationList.appendChild(listItem);
+});
+
+// Botón de objetos Pokémon igual que los demás
+const objetosItem = document.createElement('li');
+objetosItem.textContent = '🧩 Objetos Pokémon';
+objetosItem.addEventListener('click', () => {
+  window.location.href = 'objetos.html';
+});
+generationList.appendChild(objetosItem);
+
 
     async function loadGeneration(index) {
       pokedexDiv.innerHTML = '';
+
       const generation = generations[index];
+      generationInfo.textContent = `Mostrando ${generation.to - generation.from + 1} Pokémon (del #${generation.from} al #${generation.to})`;
 
       const genSection = document.createElement('section');
       genSection.className = 'generation';
-      genSection.innerHTML = `<h2>${generation.gen}</h2><div class="pokedex"></div>`;
+
+      // Botones arriba
+      const navTop = document.createElement('div');
+      navTop.className = 'nav-buttons';
+      navTop.innerHTML = `
+        ${index > 0 ? `<button id="prevGenTop">⬅ Anterior</button>` : ''}
+        ${index < generations.length - 1 ? `<button id="nextGenTop">Siguiente ➡</button>` : ''}
+      `;
+
+      // Botones abajo
+      const navBottom = document.createElement('div');
+      navBottom.className = 'nav-buttons';
+      navBottom.innerHTML = `
+        ${index > 0 ? `<button id="prevGenBottom">⬅ Anterior</button>` : ''}
+        ${index < generations.length - 1 ? `<button id="nextGenBottom">Siguiente ➡</button>` : ''}
+      `;
+
+      genSection.appendChild(navTop);
+      genSection.innerHTML += `<div class="pokedex"></div>`;
+      genSection.appendChild(navBottom);
+
       const pokedexContainer = genSection.querySelector('.pokedex');
 
       for (let i = generation.from; i <= generation.to; i++) {
@@ -265,6 +405,11 @@
       }
 
       pokedexDiv.appendChild(genSection);
+
+      document.getElementById('prevGenTop')?.addEventListener('click', () => loadGeneration(index - 1));
+      document.getElementById('nextGenTop')?.addEventListener('click', () => loadGeneration(index + 1));
+      document.getElementById('prevGenBottom')?.addEventListener('click', () => loadGeneration(index - 1));
+      document.getElementById('nextGenBottom')?.addEventListener('click', () => loadGeneration(index + 1));
     }
 
     loadGeneration(0);
@@ -302,13 +447,9 @@
       document.querySelectorAll('.pokemon').forEach(card => {
         const id = card.getAttribute('data-id');
         const name = card.querySelector('p').textContent.toLowerCase();
-        if (id.includes(search) || name.includes(search)) {
-          card.style.display = 'block';
-        } else {
-          card.style.display = 'none';
-        }
+        card.style.display = (id.includes(search) || name.includes(search)) ? 'block' : 'none';
       });
     });
   </script>
 </body>
-</html>
+</html> 
